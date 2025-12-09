@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Saúde Pública - Indicium HealthCare</title>
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 20px; color: #333; }
+        h1, h2, h3 { color: #0056b3; }
+        header { border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .date { font-size: 0.9em; color: #666; }
+        
+        /* Grid Layout */
+        .container { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        
+        /* Section 1: Metrics */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+        .metric-card { background: #f4f6f9; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .metric-value { font-size: 1.8em; font-weight: bold; color: #d63384; margin: 5px 0; }
+        .metric-label { font-size: 0.8em; text-transform: uppercase; color: #555; }
+
+        /* Section 2: Graphics */
+        .charts-container { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+        .chart-box { flex: 1; text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
+        img.chart { max-width: 100%; height: auto; }
+
+        /* Section 3: News */
+        .news-section { background: #fff; border-top: 2px solid #eee; padding-top: 10px; }
+        .news-item { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+        .news-title { font-weight: bold; font-size: 1.1em; color: #212529; text-decoration: none; }
+        .news-summary { font-size: 0.9em; color: #555; margin-top: 5px; }
+        
+        footer { margin-top: 30px; text-align: center; font-size: 0.8em; color: #999; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Indicium HealthCare Inc.</h1>
+        <div class="date">Gerado em: {{ generated_at }}</div>
+    </header>
+
+    <!-- Metrics Session -->
+    <section>
+        <h2>Indicadores Epidemiológicos</h2>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.cases_increase_rate }}%</div>
+                <div class="metric-label">Aumento de Casos (Diário)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.mortality_rate }}%</div>
+                <div class="metric-label">Taxa de Mortalidade</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.icu_occupation_rate }}%</div>
+                <div class="metric-label">Ocupação UTI</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">{{ metrics.vaccination_rate }}%</div>
+                <div class="metric-label">Vacinação</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Graphics Session -->
+    <section>
+        <h2>Evolução e Tendências</h2>
+        <div class="charts-container">
+            <div class="chart-box">
+                <!-- Line Chart -->
+                <img class="chart" src="data:image/png;base64,{{ charts.line_chart }}" alt="Line Chart">
+            </div>
+            <div class="chart-box">
+                <!-- Bar Chart -->
+                <img class="chart" src="data:image/png;base64,{{ charts.bar_chart }}" alt="Bar Chart">
+            </div>
+        </div>
+    </section>
+
+    <!-- Relevant News Session -->
+    <section class="news-section">
+        <h2>Notícias Relevantes</h2>
+        {% for item in news %}
+        <div class="news-item">
+            <a href="{{ item.url }}" class="news-title" target="_blank">{{ item.title }}</a>
+            <div class="news-summary">{{ item.content[:300] }}...</div>
+        </div>
+        {% endfor %}
+    </section>
+
+    <footer>
+        <p>Relatório confidencial gerado automaticamente por sistema de IA.</p>
+    </footer>
+</body>
+</html>

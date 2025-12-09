@@ -1,0 +1,32 @@
+# Basics
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+.DS_Store
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+
+# Distribution & Packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Testing & Linting
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Project Specific
+output/
