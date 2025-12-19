@@ -1,25 +1,67 @@
-[tool.poetry]
-name = "indicium-health-report"
-version = "0.1.0"
-description = "AI-powered public health reporting system for Indicium HealthCare Inc."
-authors = ["Antigravity <antigravity@gemini.google.com>"]
+[project]
+name = "indicium-fai-challenge"
+version = "0.2.0"
+description = "AI Agent for Public Health Data Analysis and Reporting"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Core LangChain
+    "langgraph>=0.2.0",
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    
+    # LLM Providers - Flexible support for multiple providers
+    "langchain-google-genai>=2.0.0",
+    "langchain-google-vertexai>=2.0.0",
+    "langchain-openai>=0.2.0",
+    
+    # Web Scraping & Search
+    "ddgs>=6.0.0",
+    "newspaper4k>=0.9.0",
+    
+    # Data Processing
+    "pandas>=2.0.0",
+    "numpy>=1.26.0",
+    
+    # PDF Processing
+    "pypdf>=4.0.0",
+    
+    # Web/HTTP
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.0.0",
+    
+    # Configuration
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    
+    # Templating
+    "jinja2>=3.1.0",
+    
+    # Utilities
+    "tqdm>=4.66.0",
+    "tenacity>=8.2.0",
+    "ratelimit>=2.2.1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-langchain = "^0.1.0"
-langgraph = "^0.0.10"
-langchain-openai = "^0.0.5"
-langchain-google-vertexai = "^0.0.5"
-langchain-community = "^0.0.10"
-pandas = "^2.2.0"
-requests = "^2.31.0"
-beautifulsoup4 = "^4.12.0"
-weasyprint = "^61.0"
-matplotlib = "^3.8.0"
-pydantic-settings = "^2.1.0"
-python-dotenv = "^1.0.0"
-jinja2 = "^3.1.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.5.0",
+    "mypy>=1.10.0",
+]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_ignores = true

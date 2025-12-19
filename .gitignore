@@ -1,32 +1,12 @@
-# Basics
+# User requested ignores
+data/
+output/
+
+# Python standard
 __pycache__/
 *.py[cod]
 *$py.class
-*.log
-.DS_Store
-
-# Environments
+.venv/
 .env
-.venv
-env/
-venv/
-ENV/
-
-# IDEs
-.vscode/
-.idea/
-
-# Distribution & Packaging
-dist/
-build/
-*.egg-info/
-.eggs/
-
-# Testing & Linting
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-
-# Project Specific
-output/
+.DS_Store
+*.json

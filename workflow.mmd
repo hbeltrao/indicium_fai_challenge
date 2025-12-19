@@ -1,0 +1,31 @@
+graph TD
+    Start([Start]) --> StartNode[Initialize State]
+    
+    subgraph Data Pipeline
+        StartNode --> DownloadNode[Download Dataset]
+        DownloadNode --> ProcessNode[Validate & Clean Data]
+    end
+    
+    subgraph News Pipeline
+        StartNode --> NewsNode[Search & Curate News]
+    end
+    
+    ProcessNode --> JoinNode{Join Pipelines}
+    NewsNode --> JoinNode
+    
+    subgraph Report Generation
+        JoinNode --> ReportNode[Generate HTML Report]
+    end
+    
+    ReportNode --> EndNode[Finalize]
+    EndNode --> End([End])
+    
+    classDef agent fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef tool fill:#bbf,stroke:#333,stroke-width:1px;
+    classDef data fill:#dfd,stroke:#333,stroke-width:1px;
+    classDef control fill:#ffd,stroke:#333,stroke-width:1px;
+    
+    class ProcessNode,NewsNode,ReportNode agent;
+    class DownloadNode tool;
+    class JoinNode control;
+    class StartNode,EndNode control;

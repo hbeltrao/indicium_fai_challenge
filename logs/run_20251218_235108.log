@@ -1,0 +1,87 @@
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:34 | Configuration:
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:35 |   LLM Provider: vertex
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:36 |   LLM Model: gemini-2.0-flash
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:37 |   GCP Project: ai-engineering-playground
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:38 |   LangSmith: Disabled
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:39 |   Data Dir: /home/hbeltrao/projects/indicium_fai_challenge/data
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:40 |   Output Dir: /home/hbeltrao/projects/indicium_fai_challenge/output
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:41 |   Default Topic: SRAG
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.main[0m:main:50 | Starting workflow execution...
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:29 | ============================================================
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:30 | WORKFLOW START
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:31 | ============================================================
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:download_step:38 | === Data Specialist: Download Step ===
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:31 | === News Curator: Curation Step ===
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:download_step:46 | Using existing dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:36 | Topic: SRAG | Max Results: 5
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:44 | Searching for news articles...
+2025-12-18 23:51:10 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:search_news:72 | Searching news for topic: 'SRAG' (max_results=5)
+2025-12-18 23:51:11 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:search_news:126 | Found 5 raw results
+2025-12-18 23:51:11 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:56 | Found 5 raw search results
+2025-12-18 23:51:11 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:190 | Processing article: https://www.otempo.com.br/brasil/fiocruz-aponta-crescimento-de-casos-de-srag-em-criancas-1.2625976
+2025-12-18 23:51:13 | [92mINFO    [0m | [96mindicium_fai.models.llms[0m:get_llm:164 | Creating LLM: provider=vertex, model=gemini-2.0-flash, temp=0.0
+2025-12-18 23:51:35 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:261 | Article approved: Fiocruz aponta crescimento de casos de SRAG em crianças
+2025-12-18 23:51:35 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:83 | ✓ Added: Fiocruz aponta crescimento de casos de SRAG em cri...
+2025-12-18 23:51:35 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:190 | Processing article: https://agenciabrasil.ebc.com.br/saude/noticia/2025-02/casos-de-srag-aumentam-em-criancas-com-volta-aulas-diz-fiocruz
+2025-12-18 23:51:38 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:261 | Article approved: Casos de SRAG aumentam em crianças com a volta às aulas, diz Fiocruz
+2025-12-18 23:51:38 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:83 | ✓ Added: Casos de SRAG aumentam em crianças com a volta às ...
+2025-12-18 23:51:38 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:190 | Processing article: https://www.em.com.br/saude/2025/02/7060751-casos-de-srag-aumentam-em-criancas-com-a-volta-as-aulas-diz-fiocruz.html
+2025-12-18 23:51:42 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:261 | Article approved: Casos de SRAG aumentam em crianças com a volta às aulas, diz Fiocruz
+2025-12-18 23:51:42 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:83 | ✓ Added: Casos de SRAG aumentam em crianças com a volta às ...
+2025-12-18 23:51:42 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:190 | Processing article: https://www.em.com.br/saude/2024/12/7005158-infogripe-aponta-tendencia-de-queda-da-srag-na-maior-parte-do-pais.html
+2025-12-18 23:51:47 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:261 | Article approved: Infogripe aponta tendência de queda da SRAG na maior parte do país
+2025-12-18 23:51:47 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:83 | ✓ Added: Infogripe aponta tendência de queda da SRAG na mai...
+2025-12-18 23:51:47 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:190 | Processing article: https://www.otempo.com.br/brasil/casos-de-srag-aumentam-em-todo-o-pais-aponta-infogripe-1.3344782
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:process_news_article:261 | Article approved: Casos de SRAG aumentam em todo o país, aponta Infogripe
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:83 | ✓ Added: Casos de SRAG aumentam em todo o país, aponta Info...
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:94 | === News Curation Complete: 5/5 articles ===
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:49 | ----------------------------------------
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:85 | === Data Specialist: Processing Step ===
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:50 | PIPELINES JOINED
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:104 | Validating columns...
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:51 | ----------------------------------------
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:validate_columns:160 | Validating columns for: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:52 |   Data: N/A
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:53 |   News: 5 articles
+2025-12-18 23:51:50 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:54 |   Errors: 0
+2025-12-18 23:51:53 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:validate_columns:232 | Column mapping: {'nu_notific': 'NU_NOTIFIC', 'dt_notific': 'DT_NOTIFIC', 'sg_uf_not': 'SG_UF_NOT', 'id_municip': 'ID_MUNICIP', 'vacina_cov': 'VACINA_COV', 'vacina': 'VACINA', 'hospital': 'HOSPITAL', 'dt_interna': 'DT_INTERNA', 'uti': 'UTI', 'surto_sg': 'SURTO_SG', 'classi_fin': 'CLASSI_FIN', 'evolucao': 'EVOLUCAO', 'dt_encerra': 'DT_ENCERRA'}
+2025-12-18 23:51:53 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:validate_columns:238 | Selected 13 columns for refinement
+2025-12-18 23:51:53 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:117 | Selected 13 columns for refinement
+2025-12-18 23:51:53 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:125 | Cleaning dataset...
+2025-12-18 23:51:53 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:272 | Cleaning dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:306 | Using 'DT_NOTIFIC' for date filtering
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:348 | Filtered records: 2025-11-01 to 2026-12-18 (25910/319061 rows)
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:362 | Refined dataset saved: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv (25910 rows)
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:141 | Data processing complete: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:49 | ----------------------------------------
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:84 | === Report Designer: Creation Step ===
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:50 | PIPELINES JOINED
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:93 | Dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:51 | ----------------------------------------
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:94 | News articles: 5
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:52 |   Data: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:53 |   News: 5 articles
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:54 |   Errors: 0
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:101 | Metrics: total_cases=25910
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:115 | Rendering HTML report...
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:71 | Generating report using template: report_template.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:136 | Report saved: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:122 | === Report created: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html ===
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:cleanup_old_reports:187 | Cleaned up 1 old report files
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:64 | ============================================================
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:84 | === Report Designer: Creation Step ===
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:65 | WORKFLOW COMPLETE
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:93 | Dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:66 | Report: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:94 | News articles: 5
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:69 | ============================================================
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:101 | Metrics: total_cases=25910
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:115 | Rendering HTML report...
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:71 | Generating report using template: report_template.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:136 | Report saved: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:122 | === Report created: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html ===
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:64 | ============================================================
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:65 | WORKFLOW COMPLETE
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:66 | Report: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:69 | ============================================================
+2025-12-18 23:51:58 | [92mINFO    [0m | [96mindicium_fai.main[0m:main:63 | Report generated: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_235158.html

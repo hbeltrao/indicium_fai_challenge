@@ -1,0 +1,73 @@
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:34 | Configuration:
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:35 |   LLM Provider: vertex
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:36 |   LLM Model: gemini-2.0-flash
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:37 |   GCP Project: ai-engineering-playground
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:38 |   LangSmith: Disabled
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:39 |   Data Dir: /home/hbeltrao/projects/indicium_fai_challenge/data
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:40 |   Output Dir: /home/hbeltrao/projects/indicium_fai_challenge/output
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:print_config:41 |   Default Topic: SRAG
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.main[0m:main:50 | Starting workflow execution...
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:29 | ============================================================
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:30 | WORKFLOW START
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_start_step:31 | ============================================================
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:download_step:38 | === Data Specialist: Download Step ===
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:31 | === News Curator: Curation Step ===
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:36 | Topic: SRAG | Max Results: 5
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:44 | Searching for news articles...
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:search_news:72 | Searching news for topic: 'SRAG' (max_results=5)
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:download_step:46 | Using existing dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:11:57 | [91mERROR   [0m | [96mindicium_fai.tools.news[0m:search_news:124 | News search failed: DDGS.news() missing 1 required positional argument: 'query'
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.tools.news[0m:search_news:126 | Found 0 raw results
+2025-12-18 23:11:57 | [93mWARNING [0m | [96mindicium_fai.agents.news_curator[0m:curation_step:53 | No news results found
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:49 | ----------------------------------------
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:85 | === Data Specialist: Processing Step ===
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:50 | PIPELINES JOINED
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:51 | ----------------------------------------
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:104 | Validating columns...
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:52 |   Data: N/A
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:validate_columns:160 | Validating columns for: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:53 |   News: 0 articles
+2025-12-18 23:11:57 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:54 |   Errors: 0
+2025-12-18 23:11:59 | [92mINFO    [0m | [96mindicium_fai.models.llms[0m:get_llm:164 | Creating LLM: provider=vertex, model=gemini-2.0-flash, temp=0.0
+2025-12-18 23:11:59 | [91mERROR   [0m | [96mindicium_fai.models.llms[0m:_create_vertexai_model:58 | langchain-google-vertexai not installed: No module named 'langchain_google_vertexai'
+2025-12-18 23:11:59 | [91mERROR   [0m | [96mindicium_fai.tools.data[0m:validate_columns:242 | LLM mapping failed: Install langchain-google-vertexai: pip install langchain-google-vertexai. Using fallback exact match.
+2025-12-18 23:11:59 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:validate_columns:245 | Fallback selected 13 columns
+2025-12-18 23:11:59 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:117 | Selected 13 columns for refinement
+2025-12-18 23:11:59 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:125 | Cleaning dataset...
+2025-12-18 23:11:59 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:272 | Cleaning dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/INFLUD25-15-12-2025.csv
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:306 | Using 'DT_NOTIFIC' for date filtering
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:332 | Filtered records: 2025-11-01 to 2026-12-18 (0/319061 rows)
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.tools.data[0m:clean_dataset:346 | Refined dataset saved: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv (0 rows)
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.data_specialist[0m:processing_step:141 | Data processing complete: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:49 | ----------------------------------------
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:84 | === Report Designer: Creation Step ===
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:50 | PIPELINES JOINED
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:93 | Dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:51 | ----------------------------------------
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:94 | News articles: 0
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:52 |   Data: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:53 |   News: 0 articles
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_join_step:54 |   Errors: 0
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:101 | Metrics: total_cases=0
+2025-12-18 23:12:13 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:115 | Rendering HTML report...
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:71 | Generating report using template: report_template.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:136 | Report saved: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:122 | === Report created: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html ===
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:cleanup_old_reports:187 | Cleaned up 7 old report files
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:64 | ============================================================
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:84 | === Report Designer: Creation Step ===
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:65 | WORKFLOW COMPLETE
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:93 | Dataset: /home/hbeltrao/projects/indicium_fai_challenge/data/refined_dataset.csv
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:66 | Report: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:94 | News articles: 0
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:69 | ============================================================
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:101 | Metrics: total_cases=0
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:115 | Rendering HTML report...
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:71 | Generating report using template: report_template.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.tools.report[0m:render_report:136 | Report saved: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.agents.report_designer[0m:creation_step:122 | === Report created: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html ===
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:64 | ============================================================
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:65 | WORKFLOW COMPLETE
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:66 | Report: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.workflow[0m:_end_step:69 | ============================================================
+2025-12-18 23:12:14 | [92mINFO    [0m | [96mindicium_fai.main[0m:main:63 | Report generated: /home/hbeltrao/projects/indicium_fai_challenge/output/report_20251218_231214.html

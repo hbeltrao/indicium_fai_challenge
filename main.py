@@ -1,77 +1,91 @@
+#!/usr/bin/env python3
+"""
+Indicium FAI Challenge - Main Entry Point.
+
+This script runs the AI-powered health data analysis workflow:
+1. Downloads SRAG data from DATASUS OpenDataSUS
+2. Validates and cleans the dataset
+3. Searches and curates relevant news articles
+4. Generates an HTML report with metrics and news
+"""
+import sys
 import os
-import argparse
-from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-# Load env before imports
-load_dotenv()
+# Ensure project root is in path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app.agents.graph import build_graph
+from app.config.settings import settings, LLMProvider
+from app.utils.logging import get_logger, setup_logging
+from app.workflows.main_workflow import run_workflow
+
+# Initialize logging first
+logger = get_logger("main")
+
+
+def print_banner():
+    """Print startup banner with configuration info."""
+    print("\n" + "=" * 60)
+    print("   INDICIUM FAI CHALLENGE - Health Data Agent")
+    print("=" * 60)
+
+
+def print_config():
+    """Print current configuration."""
+    logger.info("Configuration:")
+    logger.info(f"  LLM Provider: {settings.llm_provider.value}")
+    logger.info(f"  LLM Model: {settings.llm_model_name}")
+    logger.info(f"  GCP Project: {settings.google_cloud_project or 'N/A'}")
+    logger.info(f"  LangSmith: {'Enabled' if settings.langchain_tracing_v2 else 'Disabled'}")
+    logger.info(f"  Data Dir: {settings.data_path}")
+    logger.info(f"  Output Dir: {settings.output_path}")
+    logger.info(f"  Default Topic: {settings.default_topic}")
+
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="""
-Indicium HealthCare Report Generator
-====================================
-Generates a one-page PDF public health report using AI to gather data and curate news.
-
-Features:
-- Fetches epidemiological data (Simulated DATASUS).
-- Scrapes and summarizes health news (AI-powered).
-- Generates trends/graphics (Matplotlib).
-- Outputs a professional PDF report.
-
-Usage:
-  python main.py --days 30
-        """,
-        formatter_class=argparse.RawTextHelpFormatter
-    )
-    parser.add_argument("--days", type=int, default=30, help="Number of past days to analyze (default: 30)")
-    args = parser.parse_args()
-
+    """Main entry point."""
+    print_banner()
+    print_config()
+    
+    print("\n" + "-" * 60)
+    logger.info("Starting workflow execution...")
+    print("-" * 60 + "\n")
+    
     try:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=args.days)
+        # Run the workflow
+        final_state = run_workflow({"errors": []})
         
-        # Curated List of Sources
-        urls = [
-            "https://www.gov.br/saude/pt-br",
-            "https://www.cnnbrasil.com.br/saude/", 
-            "https://g1.globo.com/saude/",
-            "https://agenciabrasil.ebc.com.br/saude",
-            "https://www.bbc.com/portuguese/topics/c4794229c22t"
-        ]
+        # Print results
+        print("\n" + "=" * 60)
+        print("   EXECUTION COMPLETE")
+        print("=" * 60)
         
-        print(f"Starting Report Generation for period: {start_date.date()} to {end_date.date()}")
-        print("-" * 50)
-        
-        app = build_graph()
-        
-        input_state = {
-            "start_date": start_date.strftime("%Y-%m-%d"),
-            "end_date": end_date.strftime("%Y-%m-%d"),
-            "news_urls": urls,
-            "raw_srag_data": [],
-            "curated_news": []
-        }
-        
-        result = app.invoke(input_state)
-        
-        if result.get("validation_status") == "passed":
-            print("-" * 50)
-            print(f"SUCCESS! Report generated at: {result.get('report_rel_path')}")
-            print("-" * 50)
+        if final_state.get("final_report_path"):
+            logger.info(f"Report generated: {final_state['final_report_path']}")
+            print(f"\n📄 Final Report: {final_state['final_report_path']}")
         else:
-            print("-" * 50)
-            print(f"FAILED. Validation errors: {result.get('errors')}")
-            print("-" * 50)
-
+            logger.warning("No report was generated")
+            print("\n⚠️  No report was generated")
+        
+        if final_state.get("errors"):
+            logger.warning(f"Errors: {final_state['errors']}")
+            print(f"\n⚠️  Errors encountered: {len(final_state['errors'])}")
+            for error in final_state['errors']:
+                print(f"   - {error}")
+        
+        # Return success/failure
+        return 0 if final_state.get("final_report_path") else 1
+        
     except KeyboardInterrupt:
-        print("\n\nExecution interrupted by user.")
+        logger.info("Execution interrupted by user")
+        print("\n\n⚠️  Interrupted by user")
+        return 130
+        
     except Exception as e:
-        print(f"\n\nCRITICAL ERROR: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception(f"Fatal error: {e}")
+        print(f"\n❌ Fatal Error: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit_code = main()
+    sys.exit(exit_code)

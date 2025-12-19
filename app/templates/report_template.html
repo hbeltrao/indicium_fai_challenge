@@ -1,94 +1,432 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório de Saúde Pública - Indicium HealthCare</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Relatório Epidemiológico de Síndrome Respiratória Aguda Grave (SRAG) - Brasil">
+    <title>Relatório Epidemiológico - SRAG</title>
     <style>
-        body { font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 20px; color: #333; }
-        h1, h2, h3 { color: #0056b3; }
-        header { border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .date { font-size: 0.9em; color: #666; }
-        
-        /* Grid Layout */
-        .container { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        
-        /* Section 1: Metrics */
-        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-        .metric-card { background: #f4f6f9; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .metric-value { font-size: 1.8em; font-weight: bold; color: #d63384; margin: 5px 0; }
-        .metric-label { font-size: 0.8em; text-transform: uppercase; color: #555; }
+        :root {
+            --primary-color: #1a365d;
+            --primary-light: #2b4f8a;
+            --secondary-color: #f7fafc;
+            --accent-color: #e53e3e;
+            --accent-secondary: #38a169;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
 
-        /* Section 2: Graphics */
-        .charts-container { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
-        .chart-box { flex: 1; text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; }
-        img.chart { max-width: 100%; height: auto; }
+        * {
+            box-sizing: border-box;
+        }
 
-        /* Section 3: News */
-        .news-section { background: #fff; border-top: 2px solid #eee; padding-top: 10px; }
-        .news-item { margin-bottom: 15px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
-        .news-title { font-weight: bold; font-size: 1.1em; color: #212529; text-decoration: none; }
-        .news-summary { font-size: 0.9em; color: #555; margin-top: 5px; }
-        
-        footer { margin-top: 30px; text-align: center; font-size: 0.8em; color: #999; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .date {
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 2px;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .metric-card.alert .metric-value {
+            background: linear-gradient(135deg, var(--accent-color), #c53030);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .metric-card.success .metric-value {
+            background: linear-gradient(135deg, var(--accent-secondary), #276749);
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        /* Dataset Info */
+        .dataset-info {
+            background: #f0f4f8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            word-break: break-all;
+        }
+
+        /* News Cards */
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .news-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .news-item:hover {
+            box-shadow: var(--shadow);
+            border-color: var(--primary-light);
+        }
+
+        .news-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .news-title:hover {
+            color: var(--primary-light);
+        }
+
+        .news-summary {
+            color: var(--text-color);
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .news-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .news-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .news-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .alerts-section.success {
+            background: #f0fff4;
+            border-color: #9ae6b4;
+        }
+
+        .alert-item {
+            color: var(--accent-color);
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .alert-item::before {
+            content: '⚠';
+            position: absolute;
+            left: 0;
+        }
+
+        .success-message {
+            color: var(--accent-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: var(--secondary-color);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .news-item:hover,
+            .metric-card:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            header {
+                padding: 30px 20px;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+            .content {
+                padding: 20px;
+            }
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metric-value {
+                font-size: 1.8rem;
+            }
+        }
     </style>
 </head>
 <body>
+
+<div class="container">
     <header>
-        <h1>Indicium HealthCare Inc.</h1>
-        <div class="date">Gerado em: {{ generated_at }}</div>
+        <h1>📊 Relatório de Monitoramento - SRAG</h1>
+        <p class="subtitle">Síndrome Respiratória Aguda Grave - Brasil</p>
+        <span class="date">📅 Gerado em: {{ generation_date }}</span>
     </header>
 
-    <!-- Metrics Session -->
-    <section>
-        <h2>Indicadores Epidemiológicos</h2>
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-value">{{ metrics.cases_increase_rate }}%</div>
-                <div class="metric-label">Aumento de Casos (Diário)</div>
+    <div class="content">
+        <section>
+            <h2>Indicadores Epidemiológicos</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">{{ metrics.total_cases | default(0) | int }}</div>
+                    <div class="metric-label">Total de Casos</div>
+                </div>
+                {% if metrics.states_affected %}
+                <div class="metric-card">
+                    <div class="metric-value">{{ metrics.states_affected | int }}</div>
+                    <div class="metric-label">Estados Afetados</div>
+                </div>
+                {% endif %}
+                {% if metrics.hospitalized_count is defined %}
+                <div class="metric-card">
+                    <div class="metric-value">{{ metrics.hospitalized_count | int }}</div>
+                    <div class="metric-label">Hospitalizações</div>
+                </div>
+                {% endif %}
+                {% if metrics.uti_count is defined %}
+                <div class="metric-card alert">
+                    <div class="metric-value">{{ metrics.uti_count | int }}</div>
+                    <div class="metric-label">Internações UTI</div>
+                </div>
+                {% endif %}
+                {% if metrics.death_count is defined %}
+                <div class="metric-card alert">
+                    <div class="metric-value">{{ metrics.death_count | int }}</div>
+                    <div class="metric-label">Óbitos</div>
+                </div>
+                {% endif %}
             </div>
-            <div class="metric-card">
-                <div class="metric-value">{{ metrics.mortality_rate }}%</div>
-                <div class="metric-label">Taxa de Mortalidade</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">{{ metrics.icu_occupation_rate }}%</div>
-                <div class="metric-label">Ocupação UTI</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-value">{{ metrics.vaccination_rate }}%</div>
-                <div class="metric-label">Vacinação</div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Graphics Session -->
-    <section>
-        <h2>Evolução e Tendências</h2>
-        <div class="charts-container">
-            <div class="chart-box">
-                <!-- Line Chart -->
-                <img class="chart" src="data:image/png;base64,{{ charts.line_chart }}" alt="Line Chart">
+            <div class="dataset-info">
+                <strong>📁 Dataset:</strong> {{ refined_dataset_path }}
             </div>
-            <div class="chart-box">
-                <!-- Bar Chart -->
-                <img class="chart" src="data:image/png;base64,{{ charts.bar_chart }}" alt="Bar Chart">
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Relevant News Session -->
-    <section class="news-section">
-        <h2>Notícias Relevantes</h2>
-        {% for item in news %}
-        <div class="news-item">
-            <a href="{{ item.url }}" class="news-title" target="_blank">{{ item.title }}</a>
-            <div class="news-summary">{{ item.content[:300] }}...</div>
-        </div>
-        {% endfor %}
-    </section>
+        <section>
+            <h2>Últimas Notícias - {{ topic }}</h2>
+            {% if news_articles %}
+            <div class="news-list">
+                {% for article in news_articles %}
+                <div class="news-item">
+                    <a href="{{ article.original_link }}" class="news-title" target="_blank" rel="noopener">
+                        {{ article.title }}
+                    </a>
+                    <p class="news-summary">{{ article.summary }}</p>
+                    <div class="news-meta">
+                        <span class="news-date">📅 {{ article.date }}</span>
+                        <a href="{{ article.original_link }}" class="news-link" target="_blank" rel="noopener">
+                            Ler artigo completo →
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📰</div>
+                <p>Nenhuma notícia relevante encontrada no momento.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section>
+            <h2>Status do Sistema</h2>
+            {% if errors %}
+            <div class="alerts-section">
+                <p><strong>⚠️ Alertas Encontrados:</strong></p>
+                {% for error in errors %}
+                <p class="alert-item">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alerts-section success">
+                <p class="success-message">
+                    <span>✅</span>
+                    <span>Sistema executado com sucesso, sem erros.</span>
+                </p>
+            </div>
+            {% endif %}
+        </section>
+    </div>
 
     <footer>
-        <p>Relatório confidencial gerado automaticamente por sistema de IA.</p>
+        <p>
+            <strong>Indicium FAI Challenge</strong> - AI Engineering Agent<br>
+            Dados: <a href="https://opendatasus.saude.gov.br/" target="_blank" rel="noopener">OpenDataSUS</a>
+        </p>
     </footer>
+</div>
+
 </body>
 </html>
