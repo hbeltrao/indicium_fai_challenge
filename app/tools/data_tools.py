@@ -264,7 +264,7 @@ def clean_dataset(
         raw_file_path: Path to the raw CSV file
         selected_columns: List of column names to keep
         date_range: Optional tuple of (start_date, end_date) in 'YYYY-MM-DD' format.
-                   If None, defaults to last month to current date.
+                   If None, defaults to the previous 11 full months plus current month.
                    
     Returns:
         Path to the refined dataset file, or empty string on failure
@@ -333,12 +333,19 @@ def clean_dataset(
                 start_date = pd.to_datetime(date_range[0])
                 end_date = pd.to_datetime(date_range[1])
             else:
-                # Default: last month to now
+                # Default: previous 11 months full + current month
                 now = datetime.datetime.now()
-                first_day_current = now.replace(day=1)
-                last_month = (first_day_current - datetime.timedelta(days=1)).replace(day=1)
-                start_date = last_month
-                end_date = now + datetime.timedelta(days=365)  # Future-proof
+                
+                # Calculate the 1st day of the month 11 months ago
+                year = now.year
+                month = now.month - 11
+                while month <= 0:
+                    month += 12
+                    year -= 1
+                
+                start_date = datetime.datetime(year, month, 1)
+                # Ensure end_date covers all entries in the current month (and a bit of buffer)
+                end_date = now + datetime.timedelta(days=7)
             
             # Apply filter
             mask = (df[date_col] >= start_date) & (df[date_col] <= end_date)

@@ -1,12 +1,78 @@
-# User requested ignores
+# === Project Specific ===
 data/
 output/
+logs/
 
-# Python standard
+# === Python ===
 __pycache__/
 *.py[cod]
 *$py.class
-.venv/
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# === Environments ===
 .env
+.env.local
+.env.*
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# === Testing / Coverage ===
+.cache
+.pytest_cache/
+.noseresults
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.benchmarks/
+
+# === IDEs / Editors ===
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS Files ===
 .DS_Store
-*.json
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# === Data Science / Jupyter ===
+.ipynb_checkpoints
+.virtual_documents/

@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Relatório Epidemiológico de Síndrome Respiratória Aguda Grave (SRAG) - Brasil">
     <title>Relatório Epidemiológico - SRAG</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a365d;
@@ -63,7 +65,7 @@
         }
 
         .date {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
             display: inline-block;
             padding: 8px 20px;
             border-radius: 20px;
@@ -292,9 +294,11 @@
                 background: white;
                 padding: 0;
             }
+
             .container {
                 box-shadow: none;
             }
+
             .news-item:hover,
             .metric-card:hover {
                 transform: none;
@@ -307,126 +311,209 @@
             body {
                 padding: 10px;
             }
+
             header {
                 padding: 30px 20px;
             }
+
             header h1 {
                 font-size: 1.5rem;
             }
+
             .content {
                 padding: 20px;
             }
+
             .metrics-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+
             .metric-value {
                 font-size: 1.8rem;
             }
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <header>
-        <h1>📊 Relatório de Monitoramento - SRAG</h1>
-        <p class="subtitle">Síndrome Respiratória Aguda Grave - Brasil</p>
-        <span class="date">📅 Gerado em: {{ generation_date }}</span>
-    </header>
+    <div class="container">
+        <header>
+            <h1>📊 Relatório de Monitoramento - SRAG</h1>
+            <p class="subtitle">Síndrome Respiratória Aguda Grave - Brasil</p>
+            <span class="date">📅 Gerado em: {{ generation_date }}</span>
+        </header>
 
-    <div class="content">
-        <section>
-            <h2>Indicadores Epidemiológicos</h2>
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-value">{{ metrics.total_cases | default(0) | int }}</div>
-                    <div class="metric-label">Total de Casos</div>
+        <div class="content">
+            <section>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 style="margin-bottom: 0; border-bottom: none;">Monitoramento Epidemiológico</h2>
+                    <span
+                        style="font-size: 0.9rem; color: var(--text-light); font-weight: 600; background: #ebf4ff; padding: 4px 12px; border-radius: 6px;">
+                        Escopo: Mês Atual
+                    </span>
                 </div>
-                {% if metrics.states_affected %}
-                <div class="metric-card">
-                    <div class="metric-value">{{ metrics.states_affected | int }}</div>
-                    <div class="metric-label">Estados Afetados</div>
-                </div>
-                {% endif %}
-                {% if metrics.hospitalized_count is defined %}
-                <div class="metric-card">
-                    <div class="metric-value">{{ metrics.hospitalized_count | int }}</div>
-                    <div class="metric-label">Hospitalizações</div>
-                </div>
-                {% endif %}
-                {% if metrics.uti_count is defined %}
-                <div class="metric-card alert">
-                    <div class="metric-value">{{ metrics.uti_count | int }}</div>
-                    <div class="metric-label">Internações UTI</div>
-                </div>
-                {% endif %}
-                {% if metrics.death_count is defined %}
-                <div class="metric-card alert">
-                    <div class="metric-value">{{ metrics.death_count | int }}</div>
-                    <div class="metric-label">Óbitos</div>
-                </div>
-                {% endif %}
-            </div>
 
-            <div class="dataset-info">
-                <strong>📁 Dataset:</strong> {{ refined_dataset_path }}
-            </div>
-        </section>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ metrics.confirmed_cases | default(0) | int }}</div>
+                        <div class="metric-label">Confirmados (Mês)</div>
+                    </div>
 
-        <section>
-            <h2>Últimas Notícias - {{ topic }}</h2>
-            {% if news_articles %}
-            <div class="news-list">
-                {% for article in news_articles %}
-                <div class="news-item">
-                    <a href="{{ article.original_link }}" class="news-title" target="_blank" rel="noopener">
-                        {{ article.title }}
-                    </a>
-                    <p class="news-summary">{{ article.summary }}</p>
-                    <div class="news-meta">
-                        <span class="news-date">📅 {{ article.date }}</span>
-                        <a href="{{ article.original_link }}" class="news-link" target="_blank" rel="noopener">
-                            Ler artigo completo →
-                        </a>
+                    <div
+                        class="metric-card {% if metrics.cases_increase_rate > 0 %}alert{% elif metrics.cases_increase_rate < 0 %}success{% endif %}">
+                        <div class="metric-value">
+                            {% if metrics.cases_increase_rate > 0 %}+{% endif %}{{ metrics.cases_increase_rate |
+                            round(1) }}%
+                        </div>
+                        <div class="metric-label">Variação Mensal</div>
+                    </div>
+
+                    <div class="metric-card alert">
+                        <div class="metric-value">{{ metrics.mortality_rate | round(2) }}%</div>
+                        <div class="metric-label">Mortalidade (Mês)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">{{ metrics.hospitalization_rate | round(1) }}%</div>
+                        <div class="metric-label">% Hospitalização (Mês)</div>
+                    </div>
+
+                    <div class="metric-card alert">
+                        <div class="metric-value">{{ metrics.icu_rate | round(1) }}%</div>
+                        <div class="metric-label">% UTI (Mês)</div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">📰</div>
-                <p>Nenhuma notícia relevante encontrada no momento.</p>
-            </div>
-            {% endif %}
-        </section>
 
-        <section>
-            <h2>Status do Sistema</h2>
-            {% if errors %}
-            <div class="alerts-section">
-                <p><strong>⚠️ Alertas Encontrados:</strong></p>
-                {% for error in errors %}
-                <p class="alert-item">{{ error }}</p>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="alerts-section success">
-                <p class="success-message">
-                    <span>✅</span>
-                    <span>Sistema executado com sucesso, sem erros.</span>
-                </p>
-            </div>
-            {% endif %}
-        </section>
+                <div class="dataset-info" style="margin-bottom: 40px;">
+                    <strong>🌐 Fonte Original:</strong>
+                    <a href="{{ metrics.datasource_url }}" target="_blank"
+                        style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
+                        Portal OpenDataSUS - Dataset SRAG
+                    </a>
+                </div>
+            </section>
+
+            <section>
+                <h2>Evolução Temporal (12 Meses)</h2>
+                <div
+                    style="background: white; padding: 25px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 10px;">
+                    <canvas id="historyChart" height="100"></canvas>
+                </div>
+            </section>
+
+            <section>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin-bottom: 0; border-bottom: none;">Status Global</h2>
+                    <div class="filter-group">
+                        <label for="state-filter"
+                            style="font-size: 0.9rem; font-weight: 600; color: var(--text-light);">Filtrar por
+                            UF:</label>
+                        <select id="state-filter"
+                            style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: white; font-family: inherit; color: var(--text-color); cursor: pointer;">
+                            <option value="ALL">Todas as Unidades</option>
+                            {% for state in metrics.states %}
+                            <option value="{{ state }}">{{ state }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h2>Últimas Notícias - {{ topic }}</h2>
+                {% if news_articles %}
+                <div class="news-list">
+                    {% for article in news_articles %}
+                    <div class="news-item">
+                        <a href="{{ article.original_link }}" class="news-title" target="_blank" rel="noopener">
+                            {{ article.title }}
+                        </a>
+                        <p class="news-summary">{{ article.summary }}</p>
+                        <div class="news-meta">
+                            <span class="news-date">📅 {{ article.date }}</span>
+                            <a href="{{ article.original_link }}" class="news-link" target="_blank" rel="noopener">
+                                Ler artigo completo →
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📰</div>
+                    <p>Nenhuma notícia relevante encontrada no momento.</p>
+                </div>
+                {% endif %}
+            </section>
+
+            <section>
+                <h2>Status do Sistema</h2>
+                {% if errors %}
+                <div class="alerts-section">
+                    <p><strong>⚠️ Alertas Encontrados:</strong></p>
+                    {% for error in errors %}
+                    <p class="alert-item">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alerts-section success">
+                    <p class="success-message">
+                        <span>✅</span>
+                        <span>Sistema executado com sucesso, sem erros.</span>
+                    </p>
+                </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <footer>
+            <p>
+                <strong>Indicium FAI Challenge</strong> - AI Engineering Agent<br>
+                Dados: <a href="https://opendatasus.saude.gov.br/" target="_blank" rel="noopener">OpenDataSUS</a>
+            </p>
+        </footer>
     </div>
 
-    <footer>
-        <p>
-            <strong>Indicium FAI Challenge</strong> - AI Engineering Agent<br>
-            Dados: <a href="https://opendatasus.saude.gov.br/" target="_blank" rel="noopener">OpenDataSUS</a>
-        </p>
-    </footer>
-</div>
+    <script>
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const historyData = {{ metrics.monthly_history | tojson }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: historyData.map(d => d.label),
+                datasets: [{
+                    label: 'Casos Confirmados',
+                    data: historyData.map(d => d.value),
+                    backgroundColor: '#2b4f8a',
+                    borderRadius: 6,
+                    hoverBackgroundColor: '#1a365d'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 54, 93, 0.9)',
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f0f0f0' },
+                        ticks: { precision: 0 }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
 
 </body>
+
 </html>
