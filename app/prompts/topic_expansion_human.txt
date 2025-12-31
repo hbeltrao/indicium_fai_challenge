@@ -1,0 +1,7 @@
+Topic: {topic}
+
+Please generate a list of up to 5 synonyms and strongly related search terms for the above topic.
+These terms will be used to search for news articles in Brazil.
+Ensure the terms are in Portuguese if the topic is relevant to Brazil.
+
+Return the result as a JSON list of strings. Example: ["term1", "term2", "term3"]

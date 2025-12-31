@@ -58,45 +58,97 @@ def _rate_limit():
 def search_news(
     topic: str,
     max_results: int = 5,
-    region: Optional[str] = None
+    region: Optional[str] = "br-pt"
 ) -> List[Dict]:
     """
     Search for news articles related to a topic using DuckDuckGo.
+    Now expands the topic using LLM to find related search terms.
     
     Args:
         topic: Search topic/keywords
-        max_results: Maximum number of results (default: 5)
-        region: Region code for search (default: from settings, e.g., 'br-pt')
+        max_results: Maximum number of results per topic (default: 3)
+        region: Region code for search (default: 'br-pt')
         
     Returns:
         List of dictionaries with 'title', 'link', 'date', 'source'
     """
-    logger.info(f"Searching news for topic: '{topic}' (max_results={max_results})")
+    logger.info(f"Searching news for topic: '{topic}'")
     
-    _region = region or settings.news_region
-    results = []
+    # 1. Expand topics using LLM
+    search_topics = [topic]
+    try:
+        from app.models.llms import llm
+        from app.utils.prompts import get_chat_prompt_content
+        
+        system_prompt, human_prompt = get_chat_prompt_content("topic_expansion")
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            ("human", human_prompt)
+        ])
+        
+        chain = prompt | llm.fast | JsonOutputParser()
+        
+        suggestions = chain.invoke({"topic": topic})
+        
+        if isinstance(suggestions, list):
+            # Limit to 5 suggestions
+            search_topics.extend(suggestions[:5])
+            logger.info(f"Expanded topics: {search_topics}")
+        else:
+            logger.warning("Topic expansion returned non-list format")
+            
+    except Exception as e:
+        logger.warning(f"Topic expansion failed: {e}. Proceeding with original topic only.")
+    
+    # 2. Search for each topic
+    _region = region or settings.news_region or "br-pt"
+    # Although validation asks for 'from brazil', we allow region override but default to br-pt
+    # The prompt explicitly asks to 'fetch all from brazil'.
+    if region is None:
+        _region = "br-pt"
+
+    all_results = []
+    seen_urls = set()
+    
+    # Enforce constraints from prompt
+    articles_per_topic = 3
+    time_limit = "m" # Last 30 days (month)
     
     try:
         # Use the new ddgs package
         from ddgs import DDGS
         
         with DDGS() as ddgs:
-            # Search news specific to region - ddgs v9+ uses 'query' parameter
-            news_results = ddgs.news(
-                query=topic,
-                region=_region,
-                safesearch="on",
-                max_results=max_results
-            )
-            
-            for item in news_results:
-                results.append({
-                    "title": item.get("title", ""),
-                    "link": item.get("url") or item.get("link", ""),
-                    "date": item.get("date", ""),
-                    "source": item.get("source", ""),
-                    "body": item.get("body", ""),
-                })
+            for search_term in search_topics:
+                try:
+                    # Search news specific to region - ddgs v9+ uses 'query' parameter
+                    # Adding timelimit='m' for last 30 days
+                    news_results = ddgs.news(
+                        query=search_term,
+                        region=_region,
+                        safesearch="on",
+                        max_results=articles_per_topic,
+                        timelimit=time_limit
+                    )
+                    
+                    for item in news_results:
+                        url = item.get("url") or item.get("link", "")
+                        if url and url not in seen_urls:
+                            seen_urls.add(url)
+                            all_results.append({
+                                "title": item.get("title", ""),
+                                "link": url,
+                                "date": item.get("date", ""),
+                                "source": item.get("source", ""),
+                                "body": item.get("body", ""),
+                            })
+                except Exception as e:
+                    logger.warning(f"Search failed for term '{search_term}': {e}")
+                    continue
+                
+                # Rate limit between searches to be polite
+                time.sleep(1)
                 
     except ImportError:
         # Fallback to old package name if ddgs not available
@@ -105,28 +157,38 @@ def search_news(
             from duckduckgo_search import DDGS as OldDDGS
             
             with OldDDGS() as ddgs:
-                news_results = ddgs.news(
-                    keywords=topic,
-                    region=_region,
-                    safesearch="on",
-                    max_results=max_results
-                )
-                for item in news_results:
-                    results.append({
-                        "title": item.get("title", ""),
-                        "link": item.get("url") or item.get("link", ""),
-                        "date": item.get("date", ""),
-                        "source": item.get("source", ""),
-                        "body": item.get("body", ""),
-                    })
+                for search_term in search_topics:
+                    try:
+                        news_results = ddgs.news(
+                            keywords=search_term,
+                            region=_region,
+                            safesearch="on",
+                            max_results=articles_per_topic,
+                            timelimit=time_limit
+                        )
+                        for item in news_results:
+                            url = item.get("url") or item.get("link", "")
+                            if url and url not in seen_urls:
+                                seen_urls.add(url)
+                                all_results.append({
+                                    "title": item.get("title", ""),
+                                    "link": url,
+                                    "date": item.get("date", ""),
+                                    "source": item.get("source", ""),
+                                    "body": item.get("body", ""),
+                                })
+                        time.sleep(1)
+                    except Exception as e:
+                        logger.warning(f"Search failed for term '{search_term}': {e}")
+                        continue
         except Exception as e:
             logger.error(f"DuckDuckGo search failed: {e}")
             
     except Exception as e:
         logger.error(f"News search failed: {e}")
     
-    logger.info(f"Found {len(results)} raw results")
-    return results
+    logger.info(f"Found {len(all_results)} total raw results across {len(search_topics)} topics")
+    return all_results
 
 
 # === Article Scraping ===
