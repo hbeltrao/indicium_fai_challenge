@@ -131,7 +131,7 @@ LLM_MODEL_NAME=gemini-2.0-flash
 GOOGLE_API_KEY=your-api-key-from-aistudio
 ```
 
-### Option 2: Google Vertex AI
+### Option 2: Google Vertex AI (authenticated via gcloud)
 
 ```env
 LLM_PROVIDER=vertexai
@@ -246,12 +246,6 @@ Reports are saved to the `output/` directory as HTML files:
 4. Push: `git push origin feature/my-feature`
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
 ## 🙏 Acknowledgments
 
 - [DATASUS](https://opendatasus.saude.gov.br/) for the SARS dataset
-- [LangChain](https://langchain.com/) & [LangGraph](https://langchain-ai.github.io/langgraph/) for the agent framework
-- [Google AI](https://ai.google.dev/) for Gemini models
