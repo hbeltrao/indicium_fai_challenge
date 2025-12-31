@@ -16,28 +16,68 @@ This project implements an agentic solution that:
 ```mermaid
 graph TD
     Start([Start]) --> DownloadData[Download Dataset]
-    
+
     subgraph Data Pipeline
         DownloadData --> DataAgent(Data Specialist Agent)
         DataAgent -- Validate & Clean --> RefinedData[Refined Dataset]
     end
-    
+
     Start --> NewsAgent(News Curator Agent)
-    
+
     subgraph News Pipeline
         NewsAgent -- Scrape & Filter --> NewsItems[Curated News List]
     end
-    
+
     RefinedData --> JoinNode{Join}
     NewsItems --> JoinNode
     JoinNode --> ReportAgent(Report Designer Agent)
-    
+
     subgraph Report Generation
         ReportAgent -- Calculate & Render --> HTMLReport[Final HTML Report]
     end
-    
+
     HTMLReport --> End([End])
 ```
+
+## 📊 Report & Metrics
+
+The system generates an interactive HTML report containing key public health indicators derived from the SRAG dataset. The report focuses on the **Current Month** to provide real-time situational awareness.
+
+### Dashboard Metrics
+
+All dashboard cards and daily charts are filtered to show data for the **Current Month** only using the system's current date.
+
+| Metric                   | Formula                                 | Description                                                                             |
+| ------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------- |
+| **Total Notified**       | `Count(Rows)`                           | Total number of notifications (suspected cases) with `DT_NOTIFIC` in the current month. |
+| **Confirmed Cases**      | `Count(Rows where CLASSI_FIN is set)`   | Number of cases with a final classification (confirmed) in the current month.           |
+| **Mortality Rate**       | `(Deaths / Confirmed Cases) * 100`      | Percentage of confirmed cases resulting in death (`EVOLUCAO=2`).                        |
+| **Hospitalization Rate** | `(Hospitalized / Total Notified) * 100` | Percentage of total notifications requiring hospitalization (`HOSPITAL=1`).             |
+| **ICU Rate**             | `(ICU / Total Notified) * 100`          | Percentage of total notifications requiring ICU admission (`UTI=1`).                    |
+
+### Growth Indicators
+
+The dashboard displays percentage changes compared to the **Previous Month**:
+
+- **Notifications Trend**: `((Current Notified / Previous Notified) - 1) * 100`
+- **Confirmed Cases Trend**: `((Current Confirmed / Previous Confirmed) - 1) * 100`
+
+### Visualizations
+
+- **Monthly History (Bar Chart)**: Displays total notifications per month for the last **12 months** to visualize seasonal trends.
+- **Daily Progression (Line Chart)**: Displays daily notification counts for every day of the **Current Month** to track immediate outbreaks.
+
+### Curated News Integration
+
+The report features a dedicated news section that:
+
+1.  **Expands Topics**: Uses an LLM to generate synonyms and related search terms for the main topic (e.g., "SRAG", "Influenza", "COVID-19").
+2.  **Searches & Filters**: Fetches recent articles (last 30 days) from reliable sources.
+3.  **AI Analysis**: An LLM agent evaluates each article for relevance and generates a concise summary, filtering out duplicate or irrelevant content.
+
+### Dashboard Preview
+
+![Health Data Dashboard](assets/report_dashboard.png)
 
 ## 🚀 Quick Start
 
@@ -50,21 +90,24 @@ graph TD
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone git@github.com:hbeltrao/indicium_fai_challenge.git
    cd indicium_fai_challenge
    ```
 
 2. **Install dependencies**
+
    ```bash
    # Using uv (recommended)
    uv sync
-   
+
    # Or using pip
    pip install -e .
    ```
 
 3. **Configure environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your API keys and preferences
@@ -81,6 +124,7 @@ graph TD
 The application supports multiple LLM providers. Configure via `.env` file:
 
 ### Option 1: Google AI Studio (Easiest)
+
 ```env
 LLM_PROVIDER=google_genai
 LLM_MODEL_NAME=gemini-2.0-flash
@@ -88,6 +132,7 @@ GOOGLE_API_KEY=your-api-key-from-aistudio
 ```
 
 ### Option 2: Google Vertex AI
+
 ```env
 LLM_PROVIDER=vertexai
 LLM_MODEL_NAME=gemini-2.0-flash
@@ -96,6 +141,7 @@ GOOGLE_CLOUD_LOCATION=us-central1
 ```
 
 ### Option 3: OpenAI
+
 ```env
 LLM_PROVIDER=openai
 LLM_MODEL_NAME=gpt-4o-mini
@@ -103,6 +149,7 @@ OPENAI_API_KEY=sk-your-openai-key
 ```
 
 ### LangSmith Tracing (Optional)
+
 ```env
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_API_KEY=lsv2_your-key
@@ -145,6 +192,7 @@ indicium_fai_challenge/
 ## 🔧 Development
 
 ### Running Tests
+
 ```bash
 # Run individual test files
 python test_workflow_execution.py
@@ -160,7 +208,7 @@ Edit `app/agents/report_designer.py` and add calculations in `_calculate_metrics
 ```python
 def _calculate_metrics(dataset_path: str) -> Dict[str, Any]:
     # ... existing code ...
-    
+
     # Add your new metric
     if "YOUR_COLUMN" in df.columns:
         metrics["your_metric"] = calculate_your_metric(df)
@@ -169,6 +217,7 @@ def _calculate_metrics(dataset_path: str) -> Dict[str, Any]:
 ### Customizing the Report Template
 
 Edit `app/templates/report_template.html`. The template receives:
+
 - `generation_date`: Report generation timestamp
 - `refined_dataset_path`: Path to the dataset used
 - `metrics`: Dictionary with calculated metrics
@@ -179,6 +228,7 @@ Edit `app/templates/report_template.html`. The template receives:
 ## 📊 Output
 
 Reports are saved to the `output/` directory as HTML files:
+
 - Filename format: `report_YYYYMMDD_HHMMSS.html`
 - Old reports are automatically cleaned up (keeps last 10)
 
