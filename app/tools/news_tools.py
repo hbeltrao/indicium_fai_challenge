@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 News Tools Module.
 
@@ -24,6 +25,7 @@ from tenacity import (
 
 from app.agents.states import NewsArticle
 from app.config.settings import settings
+
 from app.utils.logging import get_logger
 
 logger = get_logger("tools.news")
@@ -83,7 +85,7 @@ def search_news(
             news_results = ddgs.news(
                 query=topic,
                 region=_region,
-                safesearch="off",
+                safesearch="on",
                 max_results=max_results
             )
             
@@ -106,7 +108,7 @@ def search_news(
                 news_results = ddgs.news(
                     keywords=topic,
                     region=_region,
-                    safesearch="off",
+                    safesearch="on",
                     max_results=max_results
                 )
                 for item in news_results:
@@ -213,27 +215,13 @@ def process_news_article(url: str, topic: str) -> Optional[NewsArticle]:
     # 3. Curate and summarize with LLM
     try:
         from app.models.llms import llm
+        from app.utils.prompts import get_chat_prompt_content
+        
+        system_prompt, human_prompt = get_chat_prompt_content("news_curation")
         
         prompt = ChatPromptTemplate.from_messages([
-            ("system", 
-             "You are a news curator for a health monitoring system. "
-             "Analyze articles and determine if they are relevant to the given health topic. "
-             "Be strict: only approve articles that are directly about the topic."),
-            ("human", """
-Topic: {topic}
-
-Article Title: {title}
-
-Article Content (truncated): 
-{content}
-
-Tasks:
-1. Determine if this article is directly relevant to "{topic}" (must discuss the health topic specifically).
-2. If relevant, write a 2-3 sentence summary in Portuguese.
-3. Return JSON format:
-   - If relevant: {{ "relevant": true, "summary": "...", "title": "..." }}
-   - If not relevant: {{ "relevant": false, "reason": "..." }}
-""")
+            ("system", system_prompt),
+            ("human", human_prompt)
         ])
         
         chain = prompt | llm.fast | JsonOutputParser()
@@ -251,6 +239,7 @@ Tasks:
                 else datetime.datetime.now().strftime("%Y-%m-%d")
             )
             
+
             article = NewsArticle(
                 title=result.get("title", title),
                 summary=result.get("summary", "Resumo indisponível"),

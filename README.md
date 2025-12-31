@@ -6,7 +6,7 @@ An intelligent AI agent system for automated public health data analysis and rep
 
 This project implements an agentic solution that:
 
-1. **Downloads SRAG Data**: Fetches the latest Severe Acute Respiratory Syndrome (SRAG) dataset from Brazil's DATASUS OpenDataSUS portal
+1. **Downloads SARS Data**: Fetches the latest Severe Acute Respiratory Syndrome (SARS) dataset from Brazil's DATASUS OpenDataSUS portal
 2. **Validates & Cleans Data**: Uses LLM-powered column mapping to select relevant fields and applies date filters
 3. **Curates Health News**: Searches, scrapes, and summarizes relevant health news articles
 4. **Generates Reports**: Creates beautiful HTML reports with metrics and curated news
@@ -202,6 +202,6 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- [DATASUS](https://opendatasus.saude.gov.br/) for the SRAG dataset
+- [DATASUS](https://opendatasus.saude.gov.br/) for the SARS dataset
 - [LangChain](https://langchain.com/) & [LangGraph](https://langchain-ai.github.io/langgraph/) for the agent framework
 - [Google AI](https://ai.google.dev/) for Gemini models

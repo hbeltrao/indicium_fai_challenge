@@ -10,7 +10,7 @@ import subprocess
 from enum import Enum
 from typing import Optional
 
-from pydantic import Field, model_validator
+from pydantic import Field, model_validator, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -119,23 +119,23 @@ class Settings(BaseSettings):
     
     # === LangSmith / LangChain ===
     langchain_tracing_v2: bool = Field(
-        False,
-        validation_alias='LANGCHAIN_TRACING_V2',
+        default=False,
+        validation_alias=AliasChoices('LANGCHAIN_TRACING_V2', 'LANGSMITH_TRACING'),
         description="Enable LangSmith tracing"
     )
     langchain_endpoint: str = Field(
-        "https://api.smith.langchain.com",
-        validation_alias='LANGCHAIN_ENDPOINT',
+        default="https://api.smith.langchain.com",
+        validation_alias=AliasChoices('LANGCHAIN_ENDPOINT', 'LANGSMITH_ENDPOINT'),
         description="LangSmith API endpoint"
     )
     langchain_api_key: Optional[str] = Field(
-        None,
-        validation_alias='LANGCHAIN_API_KEY',
+        default=None,
+        validation_alias=AliasChoices('LANGCHAIN_API_KEY', 'LANGSMITH_API_KEY'),
         description="LangSmith API key"
     )
     langchain_project: str = Field(
-        "indicium-fai-challenge",
-        validation_alias='LANGCHAIN_PROJECT',
+        default="indicium-fai-challenge",
+        validation_alias=AliasChoices('LANGCHAIN_PROJECT', 'LANGSMITH_PROJECT'),
         description="LangSmith project name"
     )
     
@@ -191,34 +191,45 @@ class Settings(BaseSettings):
     )
     
     @model_validator(mode='after')
-    def validate_provider_credentials(self) -> 'Settings':
-        """Ensure required credentials are set for the selected provider."""
+    def validate_and_setup(self) -> 'Settings':
+        """Validate credentials and setup tracing environment."""
+        self._setup_tracing()
+        
         if self.llm_provider == LLMProvider.OPENAI:
             if not self.openai_api_key:
                 raise ValueError(
-                    "OPENAI_API_KEY must be set when using 'openai' provider. "
-                    "Set it in your .env file or environment."
+                    "OPENAI_API_KEY must be set when using 'openai' provider."
                 )
                 
         elif self.llm_provider == LLMProvider.GOOGLE_GENAI:
             if not self.google_api_key:
                 raise ValueError(
-                    "GOOGLE_API_KEY must be set when using 'google_genai' provider. "
-                    "Get one from https://aistudio.google.com/app/apikey"
+                    "GOOGLE_API_KEY must be set when using 'google_genai' provider."
                 )
                 
         elif self.llm_provider in (LLMProvider.VERTEX_AI, LLMProvider.VERTEX):
-            # Try to auto-detect project from gcloud if not set
             if not self.google_cloud_project:
                 self._try_detect_gcloud_project()
                 
             if not self.google_cloud_project:
                 raise ValueError(
-                    "GOOGLE_CLOUD_PROJECT must be set when using 'vertexai' provider. "
-                    "Run 'gcloud config set project <PROJECT_ID>' or set in .env"
+                    "GOOGLE_CLOUD_PROJECT must be set when using 'vertexai' provider."
                 )
         
         return self
+
+    def _setup_tracing(self) -> None:
+        """Export LangChain tracing settings to os.environ for SDK auto-detection."""
+        if self.langchain_tracing_v2:
+            os.environ["LANGCHAIN_TRACING_V2"] = "true"
+            os.environ["LANGCHAIN_ENDPOINT"] = self.langchain_endpoint
+            os.environ["LANGCHAIN_PROJECT"] = self.langchain_project
+            if self.langchain_api_key:
+                os.environ["LANGCHAIN_API_KEY"] = self.langchain_api_key
+            # Also set LANGSMITH aliases for broader compatibility
+            os.environ["LANGSMITH_TRACING"] = "true"
+            if self.langchain_api_key:
+                os.environ["LANGSMITH_API_KEY"] = self.langchain_api_key
     
     def _try_detect_gcloud_project(self) -> None:
         """Try to detect GCP project from gcloud CLI configuration."""

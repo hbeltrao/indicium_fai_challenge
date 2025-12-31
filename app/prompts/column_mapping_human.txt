@@ -1,0 +1,18 @@
+Target Schema (Field Name: Description): 
+{target_descriptors}
+
+Raw CSV Columns List: 
+{raw_columns}
+
+Data Dictionary Excerpt:
+{pdf_text}
+
+Task:
+For each field in the Target Schema, identify the corresponding column in the Raw CSV List.
+The Raw CSV columns are usually UPPERCASE (e.g. DT_NOTIFIC).
+
+Return a JSON object where keys are the Target Schema fields and values are the exact Raw Column Name.
+Format: {{ "target_field_key": "RAW_COLUMN_NAME" }}
+Example: {{ "dt_notific": "DT_NOTIFIC", "sg_uf_not": "SG_UF_NOT" }}
+
+Only return valid JSON matching exact strings from Raw CSV List.

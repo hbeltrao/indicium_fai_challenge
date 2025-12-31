@@ -37,27 +37,33 @@ def _create_vertexai_model(
     max_retries: int = 3,
 ) -> BaseChatModel:
     """
-    Create a Vertex AI chat model instance.
+    Create a Vertex AI chat model using ChatGoogleGenerativeAI.
+    
+    Uses ChatGoogleGenerativeAI with vertexai=True to connect to Vertex AI
+    instead of the Developer API. Automatically uses ADC credentials.
     
     Requires:
-        - GOOGLE_CLOUD_PROJECT set
+        - GOOGLE_CLOUD_PROJECT set (or passed as parameter)
         - gcloud auth application-default login (or service account)
+    
+    See: https://docs.langchain.com/oss/python/integrations/chat/google_generative_ai#vertex-ai-with-credentials
     """
     logger.debug(f"Creating VertexAI model: {model_name} (temp={temperature})")
     
     try:
-        from langchain_google_vertexai import ChatVertexAI
-        return ChatVertexAI(
-            model_name=model_name,
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(
+            model=model_name,
             temperature=temperature,
             project=project or settings.google_cloud_project,
             location=location or settings.google_cloud_location,
             max_retries=max_retries,
+            vertexai=True,  # Use Vertex AI backend instead of Developer API
         )
     except ImportError as e:
-        logger.error(f"langchain-google-vertexai not installed: {e}")
+        logger.error(f"langchain-google-genai not installed: {e}")
         raise ImportError(
-            "Install langchain-google-vertexai: pip install langchain-google-vertexai"
+            "Install langchain-google-genai: pip install -U langchain-google-genai"
         ) from e
 
 

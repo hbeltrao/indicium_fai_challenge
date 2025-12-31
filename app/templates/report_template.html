@@ -356,31 +356,47 @@
 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="metric-value">{{ metrics.confirmed_cases | default(0) | int }}</div>
-                        <div class="metric-label">Confirmados (Mês)</div>
-                    </div>
-
-                    <div
-                        class="metric-card {% if metrics.cases_increase_rate > 0 %}alert{% elif metrics.cases_increase_rate < 0 %}success{% endif %}">
-                        <div class="metric-value">
-                            {% if metrics.cases_increase_rate > 0 %}+{% endif %}{{ metrics.cases_increase_rate |
-                            round(1) }}%
-                        </div>
-                        <div class="metric-label">Variação Mensal</div>
-                    </div>
-
-                    <div class="metric-card alert">
-                        <div class="metric-value">{{ metrics.mortality_rate | round(2) }}%</div>
-                        <div class="metric-label">Mortalidade (Mês)</div>
+                        <div class="metric-value">{{ metrics.total_notified | default(0) | int }}</div>
+                        <div class="metric-label">Total Notificações (Mês)</div>
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-value">{{ metrics.hospitalization_rate | round(1) }}%</div>
-                        <div class="metric-label">% Hospitalização (Mês)</div>
+                        <div class="metric-value">{{ metrics.confirmed_cases | default(0) | int }}</div>
+                        <div class="metric-label">Casos Confirmados (Mês)</div>
+                    </div>
+
+                    <div
+                        class="metric-card {% if (metrics.notifications_increase_rate | default(0)) > 0 %}alert{% elif (metrics.notifications_increase_rate | default(0)) < 0 %}success{% endif %}">
+                        <div class="metric-value">
+                            {% if (metrics.notifications_increase_rate | default(0)) > 0 %}+{% endif %}{{
+                            metrics.notifications_increase_rate | default(0) |
+                            round(1) }}%
+                        </div>
+                        <div class="metric-label">Variação Mensal (Notificações)</div>
+                    </div>
+
+                    <div
+                        class="metric-card {% if (metrics.cases_increase_rate | default(0)) > 0 %}alert{% elif (metrics.cases_increase_rate | default(0)) < 0 %}success{% endif %}">
+                        <div class="metric-value">
+                            {% if (metrics.cases_increase_rate | default(0)) > 0 %}+{% endif %}{{
+                            metrics.cases_increase_rate | default(0) |
+                            round(1) }}%
+                        </div>
+                        <div class="metric-label">Variação Mensal (Casos Confirmados)</div>
                     </div>
 
                     <div class="metric-card alert">
-                        <div class="metric-value">{{ metrics.icu_rate | round(1) }}%</div>
+                        <div class="metric-value">{{ metrics.mortality_rate | default(0) | round(2) }}%</div>
+                        <div class="metric-label">% Mortalidade (Mês)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">{{ metrics.hospitalization_rate | default(0) | round(2) }}%</div>
+                        <div class="metric-label">% Hospitalização (Mês)</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">{{ metrics.icu_rate | default(0) | round(2) }}%</div>
                         <div class="metric-label">% UTI (Mês)</div>
                     </div>
                 </div>
@@ -391,6 +407,14 @@
                         style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
                         Portal OpenDataSUS - Dataset SRAG
                     </a>
+                </div>
+            </section>
+
+            <section>
+                <h2>Evolução Diária (Mês Atual)</h2>
+                <div
+                    style="background: white; padding: 25px; border: 1px solid var(--border-color); border-radius: 12px; margin-bottom: 10px;">
+                    <canvas id="dailyChart" height="100"></canvas>
                 </div>
             </section>
 
@@ -476,6 +500,64 @@
     </div>
 
     <script>
+        // Daily Line Chart (Current Month)
+        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        const dailyData = {{ metrics.daily_history | tojson }};
+
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: dailyData.map(d => d.label),
+                datasets: [{
+                    label: 'Casos Diários',
+                    data: dailyData.map(d => d.value),
+                    borderColor: '#2b4f8a',
+                    backgroundColor: 'rgba(43, 79, 138, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#2b4f8a',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#1a365d',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(26, 54, 93, 0.9)',
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            title: function (context) {
+                                return 'Dia ' + context[0].label;
+                            },
+                            label: function (context) {
+                                return context.parsed.y + ' casos';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f0f0f0' },
+                        ticks: { precision: 0 }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Monthly Bar Chart (12 Months History)
         const ctx = document.getElementById('historyChart').getContext('2d');
         const historyData = {{ metrics.monthly_history | tojson }};
 

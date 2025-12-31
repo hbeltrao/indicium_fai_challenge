@@ -29,7 +29,7 @@ from tenacity import (
 )
 from tqdm import tqdm
 
-from app.agents.states import RefinedSragCasesDataset
+
 from app.config.settings import settings
 from app.utils.logging import get_logger
 
@@ -56,13 +56,13 @@ def _log_retry(retry_state):
     before_sleep=_log_retry,
 )
 def download_dataset(
-    url: str = "https://opendatasus.saude.gov.br/dataset/srag-2021-a-2024"
+    url: str = "https://dadosabertos.saude.gov.br/dataset/srag-2021-a-2024"
 ) -> str:
     """
     Download the most recent SRAG CSV file from OpenDataSUS.
     
-    Accesses the OpenDataSUS page, identifies the most recent CSV file
-    by year, and downloads it to the data directory with a progress bar.
+    Accesses the OpenDataSUS page, identifies the most recent CSV resource
+    (checking subpages if necessary), and downloads it.
     
     Args:
         url: OpenDataSUS dataset page URL
@@ -73,31 +73,155 @@ def download_dataset(
     logger.info(f"Accessing OpenDataSUS to fetch most recent CSV: {url}")
     
     try:
-        # 1. Get page content
-        response = requests.get(url, timeout=30)
+        session = requests.Session()
+        # 1. Get main page content
+        response = session.get(url, timeout=30)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 2. Find all CSV links
-        links = soup.find_all('a', href=True)
-        csv_links = [link['href'] for link in links if link['href'].lower().endswith('.csv')]
+        # 2. Start Strategy: Find resource items
+        # Structure identified: 
+        # a[href*='/resource/'] -> parent div -> parent div -> parent div.card-content
+        # Title is in div.text-weight-bold sibling
+        resources = []
+        seen_links = set()
         
-        if not csv_links:
-            logger.error("No CSV links found on the page")
+        # Find all distinct resource links
+        all_links = soup.find_all('a', href=True)
+        resource_candidates = [
+            l for l in all_links 
+            if '/dataset/srag-2021-a-2024/resource/' in l['href']
+        ]
+        
+        for link in resource_candidates:
+            href = link['href']
+            if href in seen_links:
+                continue
+            seen_links.add(href)
+            
+            # Traverse up to find card-content
+            title = "Unknown"
+            curr = link
+            for _ in range(5): # Max 5 levels up
+                if not curr.parent:
+                    break
+                curr = curr.parent
+                if curr.name == 'div' and 'card-content' in curr.get('class', []):
+                    # Found card, look for title
+                    title_div = curr.find('div', class_='text-weight-bold')
+                    if title_div:
+                        title = title_div.get_text(strip=True)
+                    break
+            
+            resources.append({
+                'title': title,
+                'link': href
+            })
+        
+        if not resources:
+            logger.error("No resource links found on the main page.")
             return ""
+
+        logger.info(f"Found {len(resources)} resources. Analyzing for most recent year...")
+
+        # 3. Find the most recent resource by year in title
+        def score_resource(res: dict) -> Tuple[int, int, int]:
+            title = res['title'].upper()
+            
+            # Penalties/Bonuses
+            score = 0
+            if 'CSV' in title:
+                score += 100
+            if 'BANCO' in title or 'DADOS' in title:
+                score += 50
+            if 'FICHA' in title or 'PDF' in title:
+                score -= 100
+                
+            # Extract Year
+            year = 0
+            # Try to find year 2020-2030
+            years = re.findall(r'202[0-9]', title)
+            if years:
+                year = int(max(years))
+            else:
+                # Fallback INFLUDxx
+                match = re.search(r'INFLUD(\d{2})', title)
+                if match:
+                    year = 2000 + int(match.group(1))
+            
+            # Extract Month/Day if possible (DD/MM/YYYY)
+            date_score = 0
+            date_match = re.search(r'(\d{2})/(\d{2})/(\d{4})', title)
+            if date_match:
+                d, m, y = map(int, date_match.groups())
+                if y == year:
+                    date_score = m * 31 + d
+            
+            return (year, score, date_score)
         
-        # 3. Find the most recent file by year
-        def extract_year(link: str) -> int:
-            filename = link.split('/')[-1]
-            match = re.search(r'INFLUD(\d{2})', filename, re.IGNORECASE)
-            return int(match.group(1)) if match else 0
+        # Sort by (Year, Score, Date) descending
+        resources.sort(key=score_resource, reverse=True)
         
-        most_recent_link = sorted(csv_links, key=extract_year, reverse=True)[0]
-        filename = most_recent_link.split('/')[-1]
+        best_resource = resources[0]
+        # Recalculate year for logging
+        resource_year = score_resource(best_resource)[0]
+        logger.info(f"Selected resource: '{best_resource['title']}' (Year: {resource_year})")
         
-        logger.info(f"Most recent file identified: {filename}")
+        # Construct full resource URL if relative
+        resource_url = best_resource['link']
+        if resource_url.startswith('/'):
+            # extract base url from input url
+            base_match = re.search(r'(https?://[^/]+)', url)
+            if base_match:
+                resource_url = base_match.group(1) + resource_url
+
+        # 4. Fetch the resource subpage
+        logger.info(f"Fetching resource page: {resource_url}")
+        res_page = session.get(resource_url, timeout=30)
+        res_page.raise_for_status()
+        res_soup = BeautifulSoup(res_page.text, 'html.parser')
         
-        # 4. Setup output directory
+        # 5. Find the actual download link (AWS S3 or .csv)
+        # Usually in a 'resource-url-analytics' class or similar, or just text 'Baixar'
+        download_link = None
+        
+        # Strategy A: Look for class 'resource-url-analytics' (common in CKAN)
+        dl_tag = res_soup.find('a', class_='resource-url-analytics')
+        if dl_tag and dl_tag.get('href'):
+            download_link = dl_tag['href']
+            
+        # Strategy B: Look for any link ending in .csv (case insensitive)
+        if not download_link:
+            csv_candidates = res_soup.find_all('a', href=True)
+            for cand in csv_candidates:
+                if cand['href'].lower().endswith('.csv'):
+                    download_link = cand['href']
+                    break
+        
+        # Strategy C: Look for link with text "Baixar" or "Download"
+        if not download_link:
+            for cand in res_soup.find_all('a', href=True):
+                text = cand.get_text(strip=True).lower()
+                if 'baixar' in text or 'download' in text:
+                    # check if it looks like a file url
+                    if 'amazonaws' in cand['href'] or '.csv' in cand['href'].lower():
+                        download_link = cand['href']
+                        break
+
+        if not download_link:
+            logger.error("Could not find CSV download link on resource page.")
+            return ""
+
+        # Extract filename from URL
+        filename = download_link.split('/')[-1]
+        # Safety: ensure it ends with csv
+        if not filename.lower().endswith('.csv'):
+            filename += ".csv"
+            
+        logger.info(f"Found download link: {download_link}")
+        logger.info(f"Target filename: {filename}")
+        
+        # 6. Setup output directory
         output_dir = settings.data_path
         os.makedirs(output_dir, exist_ok=True)
         save_path = os.path.join(output_dir, filename)
@@ -107,9 +231,9 @@ def download_dataset(
             logger.info(f"File already exists: {save_path}")
             return save_path
         
-        # 5. Download with progress bar
+        # 7. Download with progress bar
         logger.info(f"Downloading {filename}...")
-        csv_response = requests.get(most_recent_link, stream=True, timeout=300)
+        csv_response = session.get(download_link, stream=True, timeout=300)
         csv_response.raise_for_status()
         
         total_size = int(csv_response.headers.get('content-length', 0))
@@ -188,37 +312,20 @@ def validate_columns(
         logger.warning(f"PDF dictionary not found: {dictionary_pdf_path}")
     
     # 4. Get target schema
+    from app.agents.states import RefinedSragCasesDataset
     target_properties = RefinedSragCasesDataset.model_json_schema()['properties']
     target_descriptions = {k: v.get('description', k) for k, v in target_properties.items()}
     
     # 5. Use LLM to map columns
     try:
         from app.models.llms import llm
+        from app.utils.prompts import get_chat_prompt_content
+        
+        system_prompt, human_prompt = get_chat_prompt_content("column_mapping")
         
         prompt = ChatPromptTemplate.from_messages([
-            ("system", 
-             "You are a data engineering expert. Map target schema fields to raw CSV "
-             "columns using the provided dictionary text. Be precise and use exact matches."),
-            ("human", """
-Target Schema (Field Name: Description): 
-{target_descriptors}
-
-Raw CSV Columns List: 
-{raw_columns}
-
-Data Dictionary Excerpt:
-{pdf_text}
-
-Task:
-For each field in the Target Schema, identify the corresponding column in the Raw CSV List.
-The Raw CSV columns are usually UPPERCASE (e.g. DT_NOTIFIC).
-
-Return a JSON object where keys are the Target Schema fields and values are the exact Raw Column Name.
-Format: {{ "target_field_key": "RAW_COLUMN_NAME" }}
-Example: {{ "dt_notific": "DT_NOTIFIC", "sg_uf_not": "SG_UF_NOT" }}
-
-Only return valid JSON matching exact strings from Raw CSV List.
-""")
+            ("system", system_prompt),
+            ("human", human_prompt)
         ])
         
         chain = prompt | llm.fast | JsonOutputParser()

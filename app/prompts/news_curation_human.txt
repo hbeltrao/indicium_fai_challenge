@@ -1,0 +1,13 @@
+Topic: {topic}
+
+Article Title: {title}
+
+Article Content (truncated): 
+{content}
+
+Tasks:
+1. Determine if this article is directly relevant to "{topic}" (must discuss the health topic specifically).
+2. If relevant, write a 2-3 sentence summary in Portuguese.
+3. Return JSON format:
+   - If relevant: {{ "relevant": true, "summary": "...", "title": "..." }}
+   - If not relevant: {{ "relevant": false, "reason": "..." }}
